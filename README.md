@@ -1,15 +1,16 @@
-# Topological Data Analysis (TDA) of Representation Learning in Neural Networks
+# Topological Analysis of Representation Learning in Neural Networks
 
-This repository contains a modular research pipeline designed to investigate how the topological structure of data representations evolves as it propagates through deep neural network layers. Using **Persistent Homology** (Vietoris-Rips complexes), the project measures and visualizes the formation of geometric manifolds and the simplification of topological features (connected components $H_0$ and cycles/loops $H_1$) during model training.
+This repository contains a modular research pipeline designed to investigate how the topological structure of data representations evolves as it propagates through deep neural network layers. Using **Point-Set Topology** principles, the project treats activation spaces as metric spaces, grows open $\epsilon$-ball neighborhoods around activation points, and measures the evolution of connectedness ($H_0$ components) and boundary loop structures ($H_1$ cycles) during model training.
 
 ---
 
 ## 🔬 Scientific Background
 
-Standard neural network metrics like loss and accuracy quantify *performance*, but not the *geometry* of representation spaces. This project utilizes **Topological Data Analysis (TDA)** to:
-* Track how the network transforms high-dimensional topological spaces (e.g. circles, torus, spirals) into contractible spaces.
-* Quantify topological simplification using **Persistence Entropy**.
-* Compare representation structures between **trained** and **untrained** networks using **Bottleneck Distance**.
+Standard neural network metrics like loss and accuracy quantify *performance*, but not the *geometry* of representation spaces. This project utilizes **Point-Set Topology** to:
+* Model layer activations as a **Metric Space $(X, d)$** under the Euclidean distance metric.
+* Grow open neighborhoods (balls of radius $\epsilon$, $B_d(x, \epsilon)$) and monitor how they overlap as $\epsilon$ increases.
+* Track how the network (acting as a continuous function) transforms inputs to collapse loops ($H_1$ complexity) and separate connected components ($H_0$ complexity).
+* Quantify representation topological deviation between **trained** and **untrained** states using **Bottleneck Distance**.
 
 ---
 
@@ -18,21 +19,21 @@ Standard neural network metrics like loss and accuracy quantify *performance*, b
 Below are the empirical results obtained from training an MLP on a **Concentric Circles** dataset in 2D.
 
 ### 1. Representation Simplification (Trained vs. Untrained)
-As data propagates through the network, the classes separate geometrically. In the output layer (`Layer_4_Linear`), the representation is compressed into distinct, easily separable linear components.
+As data propagates through the network, the classes separate geometrically. In the output layer (`Layer_4_Linear`), the representation is compressed into distinct, easily separable connected components.
 
 | Input Space | Final Layer Representation (`Layer_4_Linear`) |
 | :---: | :---: |
 | ![Input Projection](assets/projection_Input.png) | ![Output Projection](assets/projection_output_circles.png) |
 
-### 2. Topological Collapse ($H_1$ Cycles)
-The input dataset contains circular structures (non-trivial 1-dimensional homology). As training progresses, the network learns to contract/tear these loops to perform classification, causing $H_1$ persistence generators to collapse to zero lifetime.
+### 2. Topological Collapse of Loops ($H_1$ Complexity)
+The input dataset contains circular structures (non-trivial 1-dimensional homology). As training progresses, the network acts as a continuous mapping to contract/tear these loops to perform classification, causing $H_1$ persistence features to collapse.
 
 | Input Persistence Diagram | Output Persistence Diagram |
 | :---: | :---: |
 | ![Input Diagram](assets/diagram_Input.png) | ![Output Diagram](assets/diagram_output_circles.png) |
 
-### 3. Bottleneck Distance Evolution
-The **Bottleneck Distance** between the trained and untrained representations increases as we go deeper, representing the structural topological shifts driven by representation learning.
+### 3. Representation Shift
+The Bottleneck Distance (topological deviation) between the trained and untrained representations increases deeper in the network, representing the structural shift driven by representation learning.
 
 ![Bottleneck Distance](assets/metrics_bottleneck_distance.png)
 
