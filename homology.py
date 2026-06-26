@@ -4,29 +4,35 @@ import gudhi
 from scipy.spatial.distance import pdist, squareform
 
 def compute_persistence(embeddings, max_dimension=1):
-    """Computes persistence diagrams of the given embeddings using Ripser.
+    """Evaluates the structural properties of activation spaces by tracking open neighborhoods.
+    
+    This function treats the embeddings as a metric space (X, d) and grows open balls
+    B(x, epsilon) of radius epsilon around each point. It computes the birth and death of
+    connected components (H0) and loops (H1) as the open neighborhoods overlap.
     
     Args:
-        embeddings (np.ndarray): Data points of shape (n_samples, n_features).
-        max_dimension (int): Maximum homology dimension to compute.
+        embeddings (np.ndarray): Layer activations of shape (n_samples, n_features).
+        max_dimension (int): Maximum complexity dimension to compute (0 for components, 1 for loops).
         
     Returns:
-        list of np.ndarray: List of persistence diagrams for dimensions 0 to max_dimension.
+        list of np.ndarray: Birth/death radius scales for structural features.
     """
-    # Run Ripser
+    # Run Ripser to compute persistent features
     result = ripser.ripser(embeddings, maxdim=max_dimension)
     return result['dgms']
 
 def compute_persistence_entropy(diagram):
-    """Computes the persistence entropy of a persistence diagram.
+    """Computes the topological complexity of the open ball neighborhood structure.
     
-    Persistence entropy is defined as the Shannon entropy of the normalized lifetimes of the points.
+    This calculates the Shannon entropy of the normalized lifetimes (death radius - birth radius)
+    of the topological features. A lower H0 entropy signifies highly compact and separated 
+    connected components in the metric space.
     
     Args:
-        diagram (np.ndarray): Persistence diagram of shape (n_points, 2).
+        diagram (np.ndarray): Feature scale intervals of shape (n_points, 2).
         
     Returns:
-        float: Persistence entropy value.
+        float: Normalized structural complexity score.
     """
     if len(diagram) == 0:
         return 0.0
@@ -56,34 +62,34 @@ def compute_persistence_entropy(diagram):
     return entropy
 
 def compute_bottleneck_distance(diag1, diag2):
-    """Computes the Bottleneck distance between two persistence diagrams using Gudhi.
+    """Computes the representation deviation (Bottleneck distance) between two structures.
+    
+    This measures the topological shift in the metric space configurations (e.g., between
+    untrained and trained states).
     
     Args:
         diag1 (np.ndarray): First diagram of shape (n_points_1, 2).
         diag2 (np.ndarray): Second diagram of shape (n_points_2, 2).
         
     Returns:
-        float: Bottleneck distance.
+        float: Representation shift score.
     """
     # Gudhi expects diagrams as lists of lists or numpy arrays of birth/death.
-    # If diagrams contain inf values, gudhi.bottleneck_distance might throw an error or need handling.
-    # Typically, we filter out points with infinity death.
     d1 = diag1[np.isfinite(diag1[:, 1])] if len(diag1) > 0 else np.empty((0, 2))
     d2 = diag2[np.isfinite(diag2[:, 1])] if len(diag2) > 0 else np.empty((0, 2))
     
     try:
         return gudhi.bottleneck_distance(d1, d2)
     except Exception as e:
-        # Fallback in case of errors
         return 0.0
 
 def compute_wasserstein_distance(diag1, diag2, order=1):
-    """Computes the Wasserstein distance between two persistence diagrams using Gudhi.
+    """Computes the Wasserstein distance (representation alignment deviation) between two structures.
     
     Args:
-        diag1 (np.ndarray): First diagram of shape (n_points_1, 2).
-        diag2 (np.ndarray): Second diagram of shape (n_points_2, 2).
-        order (int): Wasserstein order.
+        diag1 (np.ndarray): First diagram.
+        diag2 (np.ndarray): Second diagram.
+        order (int): Distance order.
         
     Returns:
         float: Wasserstein distance.
@@ -97,11 +103,11 @@ def compute_wasserstein_distance(diag1, diag2, order=1):
         return 0.0
 
 def get_significant_features(diagram, threshold=0.1):
-    """Returns persistent features that have a lifetime (death - birth) greater than a threshold.
+    """Returns stable structural features that persist beyond a radius threshold.
     
     Args:
-        diagram (np.ndarray): Persistence diagram.
-        threshold (float): Lifetime threshold.
+        diagram (np.ndarray): Feature scale intervals.
+        threshold (float): Minimum lifespan (death - birth radius).
         
     Returns:
         np.ndarray: Filtered diagram points.

@@ -52,8 +52,8 @@ def plot_persistence_diagram(dgms, title="Persistence Diagram", save_path=None):
             
     ax.set_xlim(-0.02 * max_val, max_val)
     ax.set_ylim(-0.02 * max_val, max_val)
-    ax.set_xlabel("Birth time (Distance)", fontsize=11, fontweight='semibold')
-    ax.set_ylabel("Death time (Distance)", fontsize=11, fontweight='semibold')
+    ax.set_xlabel("Open Ball Birth Radius (ϵ)", fontsize=11, fontweight='semibold')
+    ax.set_ylabel("Open Ball Death Radius (ϵ)", fontsize=11, fontweight='semibold')
     ax.set_title(title, fontsize=13, fontweight='bold', pad=15)
     ax.legend(loc='lower right', frameon=True, facecolor='white', edgecolor='#E0E0E0')
     plt.tight_layout()
@@ -114,7 +114,7 @@ def plot_persistence_barcode(dgms, title="Persistence Barcode", save_path=None):
         
     ax.set_ylim(-1, y_idx)
     ax.set_yticks([])
-    ax.set_xlabel("Filtration Value (Distance)", fontsize=11, fontweight='semibold')
+    ax.set_xlabel("Open Ball Radius (ϵ)", fontsize=11, fontweight='semibold')
     ax.set_title(title, fontsize=13, fontweight='bold', pad=15)
     ax.legend(handles=legend_handles, loc='upper right', frameon=True, facecolor='white', edgecolor='#E0E0E0')
     plt.tight_layout()
